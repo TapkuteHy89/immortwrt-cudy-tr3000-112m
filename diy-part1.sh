@@ -14,7 +14,7 @@
 #sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
 
 # Add a feed source
-echo 'src-git packages https://github.com/immortalwrt/packages.git;openwrt-24.10' >>feeds.conf.default
-echo 'src-git luci https://github.com/immortalwrt/luci.git;openwrt-24.10' >>feeds.conf.default
-echo 'src-git routing https://github.com/openwrt/routing.git;openwrt-24.10' >>feeds.conf.default
-echo 'src-git telephony https://github.com/openwrt/telephony.git;openwrt-24.10' >>feeds.conf.default
+#echo 'src-git packages https://github.com/immortalwrt/packages.git;openwrt-24.10' >>feeds.conf.default
+#echo 'src-git luci https://github.com/immortalwrt/luci.git;openwrt-24.10' >>feeds.conf.default
+#echo 'src-git routing https://github.com/openwrt/routing.git;openwrt-24.10' >>feeds.conf.default
+#echo 'src-git telephony https://github.com/openwrt/telephony.git;openwrt-24.10' >>feeds.conf.default
