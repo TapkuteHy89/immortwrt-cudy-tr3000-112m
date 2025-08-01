@@ -1,0 +1,91 @@
+name: Build ImmortalWrt with QModem
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Environment
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential clang flex bison g++ gawk \
+            gcc-multilib gettext git libncurses5-dev libssl-dev python3 \
+            rsync unzip zlib1g-dev file wget
+
+      - name: Clone ImmortalWrt
+        run: |
+          git clone https://github.com/immortalwrt/immortalwrt.git immortalwrt
+          cd immortalwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Add QModem and Packages
+        run: |
+          mkdir -p immortalwrt/package/kmilo17pet
+          git clone https://github.com/kmilo17pet/qmodem immortalwrt/package/kmilo17pet/qmodem
+          git clone https://github.com/kmilo17pet/luci-app-qmodem immortalwrt/package/kmilo17pet/luci-app-qmodem
+          git clone https://github.com/kmilo17pet/python3-netifaces immortalwrt/package/kmilo17pet/python3-netifaces
+          git clone https://github.com/kmilo17pet/quectel-CM-5G immortalwrt/package/kmilo17pet/quectel-CM-5G
+
+      - name: Build Configuration
+        run: |
+          cd immortalwrt
+          cp ../.config . || echo "No custom .config provided"
+          make defconfig
+
+      - name: Compile Firmware
+        run: |
+          cd immortalwrt
+          make download -j$(nproc)
+          make -j$(nproc) || make -j1 V=s
+
+      - name: Check Space Usage
+        run: df -h
+
+      - name: Upload bin directory
+        uses: actions/upload-artifact@v3
+        with:
+          name: bin-directory
+          path: immortalwrt/bin
+
+      - name: Organize files
+        run: |
+          cd immortalwrt/bin/targets/*/*
+          ls -lh
+
+      - name: Upload firmware directory
+        uses: actions/upload-artifact@v3
+        with:
+          name: firmware
+          path: immortalwrt/bin/targets/*/*
+
+      - name: Generate release tag
+        id: tag
+        run: echo "tag=$(date +'%Y.%m.%d-%H%M')" >> $GITHUB_ENV
+
+      - name: Upload firmware to release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.tag }}
+          files: immortalwrt/bin/targets/*/*/*.bin
+
+      - name: Delete old workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          retain_days: 1
+          keep_minimum_runs: 3
+
+      - name: Remove old Releases
+        uses: dev-drprasad/delete-older-releases@v0.2.1
+        with:
+          keep_latest: 3
+          delete_tags: true
