@@ -18,3 +18,7 @@
 #echo 'src-git luci https://github.com/immortalwrt/luci.git;openwrt-24.10' >>feeds.conf.default
 #echo 'src-git routing https://github.com/openwrt/routing.git;openwrt-24.10' >>feeds.conf.default
 #echo 'src-git telephony https://github.com/openwrt/telephony.git;openwrt-24.10' >>feeds.conf.default
+# === Custom Packages for QModem Support ===
+echo ">> Adding custom packages (QModem, python3-netifaces, quectel-CM-5G)"
+mkdir -p package/community
+cp -r package/community/* package/
