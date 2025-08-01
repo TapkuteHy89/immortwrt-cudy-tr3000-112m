@@ -22,3 +22,7 @@
 echo ">> Adding custom packages (QModem, python3-netifaces, quectel-CM-5G)"
 mkdir -p package/community
 cp -r package/community/* package/
+# === Custom Packages for QModem Support ===
+if [ -d "package/community" ]; then
+    cp -r package/community/* package/
+fi
